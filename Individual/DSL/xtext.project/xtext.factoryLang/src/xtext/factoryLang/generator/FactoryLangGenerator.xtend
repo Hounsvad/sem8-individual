@@ -16,6 +16,7 @@ import xtext.factoryLang.generator.subgenerators.EntityGenerator
 import xtext.factoryLang.factoryLang.Disk
 import xtext.factoryLang.factoryLang.Camera
 import xtext.factoryLang.generator.subgenerators.UppaalGenerator
+import xtext.factoryLang.generator.subgenerators.ConnectionDataGenerator
 
 /**
  * Generates code from your model files on save.
@@ -28,7 +29,9 @@ class FactoryLangGenerator extends AbstractGenerator {
 		val model = resource.allContents.filter(Model).next
 		val devices = model.configurations.map[device]
 		val statements = model.statements
-		try { 
+		try {
+			//(IFileSystemAccess2 fsa, SsidClass ssid, PassClass pass, MqttClass mqtt)
+			ConnectionDataGenerator.generate(fsa, model.ssidValue, model.passValue, model.mqttValue)
 			ProgramGenerator.generate(fsa, devices, statements)
 			UppaalGenerator.generate(fsa, resource)
 			CsprojGenerator.generate(fsa)

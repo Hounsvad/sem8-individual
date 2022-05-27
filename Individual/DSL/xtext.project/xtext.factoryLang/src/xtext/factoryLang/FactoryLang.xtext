@@ -3,7 +3,17 @@ grammar xtext.factoryLang.FactoryLang with org.eclipse.xtext.common.Terminals
 generate factoryLang "http://www.factoryLang.xtext/FactoryLang"
 
 Model:
-	configurations+=Configuration+ statements+=Statement+;
+	ssidValue=ssid passValue=pass mqttValue=mqtt configurations+=Configuration+ statements+=Statement+;
+
+ssid returns SsidClass:
+	'ssid=' ssid=STRING
+;
+pass returns PassClass:
+	'pass=' pass=STRING
+;
+mqtt returns MqttClass:
+	'mqtt=' mqtt=STRING
+;
 
 // ----- CONFIGURATION ----- //
 Configuration:
