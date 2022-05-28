@@ -31,14 +31,15 @@ BluetoothSerial SerialBT;
 
 
 
-struct wifi_cred_t {
+struct cred_t {
   String ssid;
   String password;
+  String mqtt;
 };
 
-wifi_cred_t getWifiCredentialsFromStorage();
-wifi_cred_t requestWifiCredentials();
-void saveWifiCredentialsToStorage(wifi_cred_t *credentials);
+cred_t getWifiCredentialsFromStorage();
+cred_t requestWifiCredentials();
+void saveWifiCredentialsToStorage(cred_t *credentials);
 bool scanForSelectedNetwork(String *selectedNetwork);
 bool btWrite(String message);
 String btRead();
@@ -55,7 +56,7 @@ void setup() {
   while(WiFi.status() != WL_CONNECTED){
     Serial.println("Wifi not connected");
     Serial.println("Getting creds from storage");
-    wifi_cred_t creds = getWifiCredentialsFromStorage();
+    cred_t creds = getWifiCredentialsFromStorage();
     Serial.println("Creds retrieved");
     if(creds.ssid.length() < 1){
       Serial.println("Creds were empty - Retrieving new creds");
@@ -110,16 +111,17 @@ bool scanForSelectedNetwork(String *selectedNetwork) {
   return false;
 }
 
-wifi_cred_t requestWifiCredentials() {
+cred_t requestWifiCredentials() {
   String get_ssid_command = "getSSID\n";
   String get_pass_command = "getPASS\n";
+  String get_mqtt_command = "getMQTT\n";
   
   
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
   delay(100);
 
-  wifi_cred_t cred;  
+  cred_t cred;  
   while(!SerialBT.connected(10000)){
     Serial.println("BT not connected waiting");
     delay(100);
@@ -132,7 +134,13 @@ wifi_cred_t requestWifiCredentials() {
   
   btWrite(get_pass_command);
   btRead();//fix for rfcomm behaving strangely echoing what is read from it
-  cred.password = btRead();
+  cred.password = btRead();  
+  
+  btWrite(get_mqtt_command);
+  btRead();//fix for rfcomm behaving strangely echoing what is read from it
+  cred.mqtt = btRead();
+
+
   SerialBT.disconnect();
   return cred;
 }
@@ -172,17 +180,19 @@ String btRead(){
   return buffer;
 }
 
-wifi_cred_t getWifiCredentialsFromStorage() {
-  wifi_cred_t returnCreds = {
+cred_t getWifiCredentialsFromStorage() {
+  cred_t returnCreds = {
     .ssid = NVS.getString("WifiSSID"),
     .password = NVS.getString("WifiPassword"),
+    .mqtt = NVS.getString("MQTTUrl"),
   };
   return returnCreds;
 }
 
-void saveWifiCredentialsToStorage(wifi_cred_t *credentials) {
+void saveWifiCredentialsToStorage(cred_t *credentials) {
   NVS.setString("WifiSSID", (*credentials).ssid);
-  NVS.setString("WifiSSID", (*credentials).ssid);
+  NVS.setString("WifiPassword", (*credentials).password);
+  NVS.setString("MQTTUrl", (*credentials).MQTTUrl);
   return;
 }
 
