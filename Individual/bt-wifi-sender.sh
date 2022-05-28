@@ -2,6 +2,7 @@
 
 ssid=$(cat /home/frederik/programming/sem8/test/wifi-credentials.config | grep -oP '(?<=ssid=).*')
 password=$(cat /home/frederik/programming/sem8/test/wifi-credentials.config | grep -oP '(?<=pass=).*')
+mqtt=$(cat /home/frederik/programming/sem8/test/wifi-credentials.config | grep -oP '(?<=mqtt-data=).*')
 cat /home/frederik/programming/sem8/test/wifi-credentials.config
 
 echo "Scanning"
@@ -33,6 +34,10 @@ do
             echo "Sending Password: " $password
             echo $password > /dev/rfcomm0
             
+        elif [[ $readCommand == *"getMQTT"* ]] 
+        then
+            echo "Sending MQTT: " $mqtt
+            echo $mqtt > /dev/rfcomm0
         fi
     done
     $(rfcomm release 0 &> /dev/null) 
