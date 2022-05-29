@@ -1,0 +1,15 @@
+@startuml
+    ESP32 --> PI : Broadcast name and mac
+    PI --> ESP32 : Scan for devices with name "SEM8ESP"
+    loop Found devices with correct name
+        PI -> ESP32 : Request connection
+        ESP32 --> PI : Accept connection
+        ESP32 -> PI : Request SSID
+        PI -> ESP32 : Send SSID
+        ESP32 -> PI : Request password
+        PI -> ESP32 : Send password
+        ESP32 -> PI : Request MQTT address
+        PI -> ESP32 : Send MQTT address
+        PI --> ESP32 : Terminate connection
+    end
+@enduml
